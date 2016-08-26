@@ -1,0 +1,8 @@
+void lightLeds(int arr[], int len, int del){
+  //no-delay led lighting, not useful for this exercise,
+  //as you want a delay when the breaks happen.
+  long t0 = millis();
+  for (int i=0; i < len; i++) light(arr[i]);
+  while(millis()<t0+del){}
+  for (int i=0; i < len; i++) dim(arr[i]);
+}
