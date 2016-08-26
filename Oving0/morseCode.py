@@ -2,8 +2,7 @@ from arduinoSerial import Arduino
 
 class MorseController:
 	def __init__(self):
-		self.ard = Arduino()
-		print('Initialized new Morse controller')
+		self.ardu = Arduino()
 		self._decoded = ''
 		self.word = ''
 		self.symbol = ''
@@ -24,7 +23,7 @@ class MorseController:
 			'3': '00011',  '4': '00001',  '5': '00000',
 			'6': '10000',  '7': '11000',  '8': '11100',
 			'9': '11110'}
-		self.rev_morse = {value:key for key,value in self.morse_codes.items()}
+		self.rev_morse = {v:k for k,v in self.morse_codes.items()}
 
 		# all available functions to handle signals.
 		# dicts don't support parametres, hence add_1 and add_0
@@ -35,28 +34,30 @@ class MorseController:
 			'1': self.add_1,
 			'0': self.add_0
 		}
-		print(self.parse_morse("0000 0 00"))
-	
-	def parse_morse(self, s):
-		s = self.validate_morse(s) # remove obvious invalid codes, length>5
-		try:
-			# gathers all the matches in the reverse morse list
-			return ''.join(self.rev_morse.get(x) for x in s.split())
-		except TypeError:
-			# this error should never occur due to the validation, but security(!)
-			print 'Invalid morse'
+		print 'Initialized Morse controller 2000'
+		print 'Ready for input, start mashing the button!'
+		print '0000 0 00 = '+self.parse_morse('0000 0 00')
 	
 	def validate_morse(self, s):
 		# only keep valid codes of length<5 and valid morse codes
 		return ' '.join([x for x in s.split() if len(x)<5 and x in self.morse_codes.values()])
 		
+	def parse_morse(self, s):
+		s = self.validate_morse(s) # see above ^
+		try:
+			# as we now have valid morse codes, get the value (alphanumeric) of each key (morse)
+			return ''.join(self.rev_morse.get(x) for x in s.split())
+		except TypeError:
+			# this error should never occur due to the validation, but security(!)
+			print 'Invalid morse'
+		
 	def process_signal(self, e):
-		if len(e)==1: # simple security check, even if the arduino is only allowed to send one at a time
+		if len(e)==1: # simple security check, even if the arduuino is only allowed to send one at a time
 			print '#', e
 			self.events[e]()
 			
 	def read_one_signal(self):
-		self.process_signal(self.ard.get_morse())
+		self.process_signal(self.ardu.get_morse())
 		
 	# EVENTS BELOW
 	def reset(self):
@@ -85,4 +86,5 @@ class MorseController:
 	# END EVENTS
 	
 	def on_close(self):
-		self.ard.close()
+		self.ardu.ard.close()
+		print 'Closing serial connection.'

@@ -6,10 +6,6 @@ class Arduino:
 		print 'Initializing Arduino on serial port...'
 		self.ard = serial.Serial()
 		self.init_COM()
-		self.COMPORT = None
-		
-	def get_com(self):
-		return self.COMPORT
 		
 	def get_morse(self):
 		return str(self.ard.readline()[:-2])
@@ -19,7 +15,6 @@ class Arduino:
 		for comPort in range (6,12): #had another arduino at com 5
 			if self.try_port(comPort):
 				available = True
-				self.COMPORT = comPort
 				print ("Connection established at COM"+str(comPort)+", please wait.")
 				time.sleep(2)
 				break
