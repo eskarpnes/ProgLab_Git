@@ -65,7 +65,7 @@ void setup() {
 }
 
 unsigned long timestamp, btnDur, breakDur;
-bool started = false, activeWord = false, noBreakLast = false;
+bool started = false, noBreakLast = false;
 void loop(){
   if (digitalRead(BTN)){
     started = true;
@@ -73,7 +73,6 @@ void loop(){
     while (digitalRead(BTN)){
       btnDur = millis()-timestamp;
       if (btnDur>=RESET) break;
-      //if (btnDur>=LONGPRESS) light(4); light(3);
     }
     noBreakLast=true; //allows a break after a word/letter
     if (btnDur>=RESET){
@@ -83,19 +82,17 @@ void loop(){
     else if (btnDur >= LONGPRESS) longPress();
     else shortPress();
   }
-  else if (started && noBreakLast && !activeWord && !digitalRead(BTN)){
+  else if (started && noBreakLast && !digitalRead(BTN)){
     timestamp = millis();
     while (!digitalRead(BTN)){
       breakDur = millis()-timestamp;
       if (breakDur>=LONGBREAK){
-        //lightLeds(leds,3,500);
         longBreak();
         break;
       }
       else if (breakDur>SHORTBREAK && breakDur<LONGBREAK){
         light(2);
-        //keep the light on to indicate
-        //that you can keep typing
+        //keep the light on while the user can do a short break
       }
     }
     if (breakDur<LONGBREAK && breakDur>SHORTBREAK){
