@@ -12,7 +12,7 @@ class Arduino:
 	
 	def init_COM(self):
 		available = False
-		for comPort in range (6,12): #had another arduino at com 5
+		for comPort in range (1,12): #had another arduino at com 5
 			if self.try_port(comPort):
 				available = True
 				print ("Connection established at COM"+str(comPort)+", please wait.")
