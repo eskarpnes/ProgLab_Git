@@ -1,41 +1,21 @@
-from players import PlayerController as PC
+from players import PlayerController as Game
+from PySide.QtGui import *
+from mainview import MainView
+import sys
+
 def main():
 	print 'Starting Rock-Paper-Scissors\n'
-	game = PC()
+	game = Game()
 	# game.play('rock')
 	# game.play('paper')
-	# game.play('paper')
-	# game.play('scissors')
-	# game.play('rock')
-	# game.play('rock')
-	# game.play('rock')
-	# game.play('scissors')
-	game.auto_play(3)
-	game.auto_play(3)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(3)
-	game.auto_play(3)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(2)
-	game.auto_play(2)
-	game.auto_play(3)
-	game.auto_play(3)
-	game.auto_play(1)
-	game.auto_play(1)
-	game.auto_play(2)
-	game.auto_play(2)
-	game.auto_play(3)
-	game.auto_play(3)
-	game.auto_play(4)
-	game.auto_play(4)
-	#game.play('rock')
-	#pc.get_result()
+	# game.auto_play(1)
+	# game.auto_play(1)
+	# game.end()
+	
+	# app = QApplication(sys.argv)
+	# win = MainView()
+	# sys.exit(app.exec_())
 	
 if __name__=='__main__':
 	main()
+	
