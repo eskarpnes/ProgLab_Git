@@ -8,16 +8,14 @@ class Player:
 			1: self.auto.random_act,
 			2: self.auto.seq_act,
 			3: self.auto.common_act,
-			4: self.auto.history_act,
-			5: self.auto.smart_act
+			4: self.auto.history_act
 		}
 		self.intelligence = {
 			0: 'None',
 			1: 'Random',
 			2: 'Sequential',
 			3: 'Most common',
-			4: 'Historical (AI)',
-			5: 'Smartness beyond belief'
+			4: 'Historical (AI)'
 		}
 		self.name = name
 		self.previous_plays = []
@@ -34,14 +32,14 @@ class Player:
 	def play(self, act):
 		if self.valid_action(act):
 			self.previous_plays.append(act)
-			print self.get_name(), 'played', act
+			#print self.get_name(), 'played', act
 			self.update_last_play()
 		else:
 			print 'Invalid action!'
 		#print ''
 			
 	def auto_play(self, level):
-		if level > 0 and level < 6:
+		if level > 0 and level < 5:
 			self.play(self.events[level]())
 		else:
 			print 'Invalid levelligence level!'

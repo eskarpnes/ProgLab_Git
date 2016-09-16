@@ -34,8 +34,8 @@ class PlayerController:
 	def update_plot(self):
 		fig = plt.figure()
 		x_ = np.arange(self.rounds_completed)
-		plt.plot(x_,self.players[0].score_table,'b-')
-		plt.plot(x_,self.players[1].score_table,'r-')
+		plt.plot(x_,self.players[0].score_table)
+		plt.plot(x_,self.players[1].score_table)
 		
 		plt.xlabel('Rounds played')
 		plt.ylabel('Points')
@@ -81,7 +81,7 @@ class PlayerController:
 			self.active_player+=1
 
 	def round_finished(self):
-		self._print( '### ROUND '+str(self.rounds_completed+1)+' OVER! ####' )
+		self._print( '### ROUND'+str(self.rounds_completed+1)+'OVER! ####' )
 		self.compare(self.get_result(0), self.get_result(1))
 		self.rounds_completed += 1
 		self._print( 'Points:' )

@@ -13,16 +13,16 @@ class GameController:
 			player = player.title()
 			pc.add_player(player)
 			pc.add_player('Computer')
-			print "\nSelect the computer's intelligence:\n1) Random\n2) Sequential\n3) Most common\n4) History (AI)\n5) Smartness beyond belief \2"
+			print "\nSelect the computer's intelligence:\n1) Random\n2) Sequential\n3) Most common\n4) History (AI)"
 			difficulty = input('>')
-			print '...'+player+', prepare to play vs the Computer! (Type "end" to exit)'
+			print '...'+player+', prepare to play vs the Computer!'
 			
 			while True:
 				act = raw_input('Your play is... ')
 				if pc.players[0].valid_action(act):
 					pc.play(act)
 					pc.auto_play(difficulty)
-				elif act == 'end':
+				elif act == 'quit':
 					break
 				else:
 					print 'Invalid action. Try again:'
@@ -31,7 +31,7 @@ class GameController:
 			pc.add_player('Anna')
 
 			print 'Initializing robots John and Anna...'
-			print "\nIntelligence levels:\n1) Random\n2) Sequential\n3) Most common\n4) History (AI)\n5) Smartness beyond belief! \2"
+			print "\nIntelligence levels:\n1) Random\n2) Sequential\n3) Most common\n4) History (AI)"
 			r1, r2 = 0,0
 			r1_smart, r2_smart = 0,0
 			r1 = input("Select John's intelligence level: ")
@@ -54,9 +54,8 @@ class GameController:
 			pc.players[0].intel = r1
 			pc.players[1].intel = r2
 			
-			time_test = raw_input('Run for an amount of rounds (enter as number), or control it manually? (Leave blank for manual) ')
-			if time_test!='':
-				time_test = int(time_test)
+			time_test = input('Run for an amount of rounds (enter as number), or control it manually? (Leave blank for manual) ')
+			if time_test!='' and isinstance(time_test, (int, long)):
 				pc.print_enabled = False
 				for i in range(time_test):
 					pc.auto_play(r1)
