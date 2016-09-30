@@ -6,38 +6,9 @@ class Cipher:
 	def __init__(self):
 		self.LOW = 65 #32
 		self.HIGH = 91 #127
-		self.A = list((chr(i))for i in range(self.LOW, self.HIGH))
-		# self.A = list((chr(i),i-32)for i in range(32, 127))
-		# self.A = list((chr(i),i-65) for i in range(65,91))
-		self.M = len(self.A) #95
-		self.ciphered = '' #used to store the ciphered alphabet
-
-	def encode(self, str, key):
-		# str = str.upper()
-		print ('Encoding ('+str+')...',end='')
-		encoded = ''.join(self.ciphered[self.A.index(c)] for c in str)
-		
-		# for c in str:
-			# n = ord(c)
-			# self.ciphered += chr((n+key)%self.M)
-		# print ()
-		# print (self.ciphered)
-		
-		print(encoded)
-		return encoded
-		
-	def decode(self, str, key):
-		#str = str.upper()
-		print ('Decoding...',end='')
-		decoded = ''.join(self.A[self.ciphered.index(c)] for c in str)
-		# print()
-		# for c in str:
-			# n = ord(c)
-			# print ('Mod value:',(n-key)%self.M)
-			# print (c,'to',n,'-->',chr(n-key))
-		
-		print(decoded)
-		return decoded
+		self.M = self.HIGH-self.LOW #95 or 26 for the normal alphabet
+		self.encoded = ''
+		self.decoded = ''
 
 	def verify(self, str):
 		str = str.upper()
@@ -46,37 +17,56 @@ class Cipher:
 		
 	def generate_keys(self):
 		# generate keys to be passed to the sender and receiver
-		return randint(self.M-1) #-1 to prevent full circle
-		
+		return randint(0,self.M) #-1 to prevent full circle
 		
 class Caesar(Cipher):
 	def __init__(self): # default key: 0
 		super().__init__()
 		
-	def update_key(self, key):
-		self.ciphered = list(
-				(chr((key+(i-self.LOW))%self.M+self.LOW)
-				for i in range(self.LOW,self.HIGH)))
-		print (self.A)
-		print (self.ciphered)
-		# return self.ciphered
+	def encode(self, str, key):
+		print ('Encoding ('+str+')...',end='')
+		print()
+		for c in str:
+			n = ord(c)
+			print (c,'=',n,'-->',(self.LOW + (n - self.LOW + key)%self.M),chr (self.LOW + (n - self.LOW + key)%self.M))
+			self.encoded += chr (self.LOW + (n - self.LOW + key)%self.M)
+		print (self.encoded)
+		return self.encoded
+		
+	def decode(self, str, key):
+		print ('Decoding '+str+'...',end='')
+		print()
+		for c in str:
+			n = ord(c)
+			print (c,'=',n,'-->',(self.LOW+(n - self.LOW - key)%self.M),chr (self.LOW + (n - self.LOW - key)%self.M))
+			self.decoded += chr (self.LOW + (n - self.LOW - key)%self.M)
+		print (self.decoded)
 
 class Mult(Cipher):
 	def __init__(self):
 		super().__init__()
-	
-	def update_key(self, key):
-		# self.ciphered = list(
-				# chr(((key*(i-self.LOW)))%self.M+self.LOW)
-				# for i in range(self.LOW,self.HIGH))
-		self.ciphered = list(
-				chr(((modInv(key*(i-self.LOW),self.M)))%self.M+self.LOW)
-				for i in range(self.LOW,self.HIGH))				
-		print (self.A)
-		print (self.ciphered)
-		# for i in range(self.LOW, self.HIGH):
-		# return self.ciphered
 		
+	def encode(self, str, key):
+		print ('Encoding ('+str+')...',end='')
+		print()
+		for c in str:
+			n = ord(c)
+			print (c,n,'-->',(self.LOW + ((n - self.LOW) * key) % self.M),chr (self.LOW + ((n - self.LOW) * key) % self.M))
+			self.encoded += chr (self.LOW + ((n - self.LOW) * key) % self.M)
+		print (self.encoded)
+		return self.encoded
+		
+	def decode(self, str, key):
+		print ('Decoding '+str+'...',end='')
+		print()
+		x = modInv(key, self.M)
+		print ('find solving key...',x)
+		for c in str:
+			n = ord(c)
+			solved = self.LOW+ x*(n-self.LOW) % self.M
+			print (c,n,'->',chr(solved), solved)
+			self.decoded += chr(solved)
+		print (self.decoded)		
 			
 	
 class Affine(Cipher):

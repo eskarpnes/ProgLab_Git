@@ -22,10 +22,8 @@ class Person:
 		return self.cipher_num
 		
 	def set_key(self, key, from_class = 'Unknown'):
-		if (self.key != key):
-			print ('Updating key:',key,'(@'+from_class+')')
+		if self.key != key:
 			self.key = key
-			self.cipher.update_key(key)
 		
 	def get_key(self):
 		return self.key
@@ -36,15 +34,11 @@ class Person:
 class Sender(Person):
 	def __init__(self, cipher, key):
 		super().__init__(cipher)
-		# self.set_key(2) # default
 		print ('Creating a sender with crypto level:',self.cipher.__class__.__name__)
-		self.set_key(key)
+		super().set_key(self.cipher.generate_keys() if key is None else key)
 	
-	def set_key(self, key):
-		super().set_key(key, self.__class__.__name__)
-		
 	def operate_cipher(self, str):
-		print ('Sender is operating cipher with',self.cipher.__class__.__name__, 'with a key of',self.get_key())
+		print ('Sender is operating cipher with',self.cipher.__class__.__name__, 'with key',self.get_key())
 		self.txt = self.cipher.encode(str, self.key)
 		
 class Receiver(Person):
@@ -53,12 +47,9 @@ class Receiver(Person):
 		super().__init__(sender.get_cipher_type())
 		self.sender = sender
 		
-	def set_key(self, key):
-		super().set_key(key, self.__class__.__name__)
-		
 	def operate_cipher(self):
-		self.set_key(self.sender.get_key())
-		print ('Receiver is trying to crack',self.sender.txt)
+		super().set_key(self.sender.get_key())
+		print ('Receiver is trying to crack',self.sender.txt, 'with key',self.key)
 		s = self.cipher.decode(self.sender.txt, self.key)
 
 
@@ -72,7 +63,7 @@ class Hacker(Person):
 		super().operate_cipher()
 
 class Communicate:
-	def __init__(self, cipher_type, key=2):
+	def __init__(self, cipher_type, key=None):
 		self.s = Sender(cipher_type, key)
 		self.r = Receiver(self.s)
 		

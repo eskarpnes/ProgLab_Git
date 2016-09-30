@@ -11,11 +11,11 @@ def main():
 	# r = Receiver(s)
 	# s.operate_cipher(msg)
 	# r.operate_cipher()
-	comm = Communicate(1, 2) # sets up sender and receiver
+	comm = Communicate(1) # sets up sender and receiver
 	send = comm.send
 	# msg = ":-0 '^^,.-_:,;\+%/&# >~^.^~<"
 	# send(msg)
-	msg = 'PYTHON'
+	msg = 'KODE'
 	send(msg)
 	
 	
