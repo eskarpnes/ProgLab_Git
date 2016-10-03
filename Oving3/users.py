@@ -1,14 +1,13 @@
-from cipher import Caesar, Mult, Affine, RSA
+from cipher import Caesar, Mult, Affine, Unbreakable, RSA
 
 class Person:
 	def __init__(self, cipher_num):
 		self.ciphers = {
-			1:Caesar, 2:Mult, 3:Affine, 4:RSA
+			1:Caesar, 2:Mult, 3:Affine, 4:Unbreakable, 5: RSA
 		}
 		self.cipher_num = cipher_num
 		self.cipher = self.ciphers[self.cipher_num]()
 		self.key = 0 #default
-		# self.set_key (3) #default
 		self.txt = None
 		
 	def set_cipher(self, cipher):
@@ -51,6 +50,8 @@ class Receiver(Person):
 		super().set_key(self.sender.get_key())
 		print ('Receiver is trying to crack',self.sender.txt, 'with key',self.key)
 		s = self.cipher.decode(self.sender.txt, self.key)
+		# if self.cipher.verify(self.sender.txt,self.key):
+			# print ('Valid decoding!')
 
 
 class Hacker(Person):
