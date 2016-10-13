@@ -7,8 +7,8 @@ from itertools import product # used to make tuples of Affine cipher keys of une
 
 class Cipher:
 	def __init__(self):
-		self.LOW = 32 #65
-		self.HIGH = 127 #91
+		self.LOW = 65 #32 #65
+		self.HIGH = 91 #127 #91
 		self.M = self.HIGH-self.LOW #95 (26 for the upper_ascii alphabet)
 	def encode(self):
 		pass
@@ -17,7 +17,6 @@ class Cipher:
 	def generate_keys(self):
 		pass
 	def verify(self, original, from_receiver):
-		print ('Checking if',original,'is equal to',from_receiver)
 		return original.lower() == from_receiver.lower()
 		
 class Caesar(Cipher):
@@ -122,17 +121,16 @@ class Unbreakable(Cipher):
 		with open ('englishwords.txt','r') as words:
 			for i, word in enumerate(words):
 				if i%100 == 0:  # picks line 100, 200, 300, ..., 9000!
-					self.word_list.append(word.strip().upper())
+					self.word_list.append(word.strip())
 		words.close()
 		# print (self.word_list)
 		
 	def available_keys(self):
-		# return ['PIZZA']
 		return self.word_list
 		
 	def generate_keys(self):
-		# return 'PIZZA'
-		key = random.choice(self.word_list)
+		return 'PIZZA'
+		key = random.choice(self.word_list).upper()
 		print ('Selected key:',key)
 		return key
 	
@@ -143,29 +141,27 @@ class Unbreakable(Cipher):
 			k = key[i % len(key)]
 			sum = ord(c)+ord(k)
 			# print (sum)
-			sum = sum % self.HIGH
-			# print (c, ord(c)-self.LOW,'\t->\t', k, ord(k)-self.LOW, '\tModSum:',sum-self.LOW,'\t',chr(sum))
+			sum = self.LOW + sum % self.M
+			print (c, ord(c)-self.LOW,'\t->\t', k, ord(k)-self.LOW, '\t\tSum:\t',sum-self.LOW,'\t',chr(sum))
 			encoded += chr(sum)
-		print ('Encoded:',encoded)
+		print (encoded)
 		return encoded
 			
 	def decode(self, txt, key):
-		# print ('decoding',txt,'with key:',key)
 		decrypt, decoded = '', ''
-		print ('Finding decrypting key for',key,end = '...')
+		print ('Finding decrypting key...', end = '')
 		for c in key:
-			# print (c, ord(c))
-			new = (self.M - (ord(c)-self.LOW)) % self.HIGH # (M-n) mod M
-			decrypt += chr(new)
+			print (c, ord(c)-self.LOW)
+			new = (self.M - (ord(c)-self.LOW))%self.M
+			decrypt += chr(new + self.LOW)
 		print (decrypt)
 		for i in range (len(txt)):
-			decrypt_val = ord(decrypt[i % len(decrypt)]) # ascii value of the code index
-			txt_val = ord(txt[i]) # ascii value of the current letter
-			new = (txt_val + decrypt_val) % self.HIGH
-			# print ('ascii:', new)
-			# print (txt_val,'+',decrypt_val,'mod',self.M,'=',new-1,chr(new-1))
-			decoded += chr(new)
-		print ('Decoded:',decoded)
+			decrypt_val = ord(decrypt[i % len(decrypt)]) - self.LOW
+			txt_val = ord(txt[i]) - self.LOW
+			new = (txt_val + decrypt_val) % self.M
+			print (txt_val,'\t+\t',decrypt_val,'mod',self.M,'=\t',new,'\t->\t',new+self.LOW, chr (new + self.LOW))
+			decoded += chr(new + self.LOW)
+		print (decoded)
 		return decoded
 
 		

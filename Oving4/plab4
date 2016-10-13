@@ -1,0 +1,167 @@
+Notater til Plab 4
+
+Positive:	>6	stjerner
+Negative:	<5	stjerner
+
+1.
+Ta data fra trenings-filene, og bruk dette til å finne sammenhenger mellom ord og rating
+
+2.
+Bruk test-data etter trening til å se hvorvidt programmet analyserer riktig.
+Dvs, sjekk opp mot programmets vurdering av ordene i hver tekst at de er i "positiv"- eller "negative"-mappa.
+
+
+Struktur.
+
+data
+	stop-words.txt
+	
+	alle
+		train: data har formatet: *index*_*rating*.txt
+			neg
+			pos
+		test
+			neg
+			pos
+			
+	subset
+		kopi av train/test
+	
+
+
+
+Start av programmet.
+
+1.
+Hvilke ord? sett alle ord til lower slik at "Good, good, GOOD, good!" blir filtrert til "good, good, ..."
+Snapp kun opp om et ord er tilstede når vi skal anta rating til en review
+
+2.
+Populritet for ord?
+
+antall positive med *ord* / antall positive reviews
+
+samme for negative.
+
+______________________
+STEG 1:
+Les inn alle filene og lagre de på følgende måte:
+linjen i en fil -> legg til alle .lower()-ord i et set(), slik at vi fjerner duplikater.
+Finn X/10, der X er ratingen, og append det til slutten av lista:
+[ord1, ord2, ..., ordN, X, 10]
+
+Code:
+
+all_reviews = []
+with open(file...) as ratings:
+	for line in ratings:
+		review = re.findall("\w+", line.replace("'", "").lower()
+		formatted = set()
+		for word in review:
+			formatted.append(word)
+		formatted.append(10)
+		
+		all_reviews.append(formatted)
+		
+________________
+STEG 2:
+Les alle filene i treningssettet.
+Finn de 25 mest populære ordene for positive og negative
+________________
+STEG 3:
+Fjern stopp-ord og produser resultatet over igjen.
+Dvs kjør koden med et endret array av reviews.
+E.g.: popularity(list)
+og se forskjellen etter ubrukelige ord som "is" og "and" er fjernet.
+
+________________
+STEG 4:
+Vi vil nå finne informasjonsverdi med hensyn på positivt eller negativt dokument
+Så, for hvert ord ønsker vi å finne ut hvor ofte et ord blir brukt i en pos/neg review
+i forhold til hvor ofte det blir brukt i HVER review
+
+Antall positive med *ord* / Antall totalt med *ord*
+
+Code:
+
+get_information_value(word, is_positive):
+	to_check = self.pos_reviews if is_positive else self.neg_reviews
+	other_type = self.neg_reviews if is_positive else self.pos_reviews
+	words_found = 0
+	words_in_other_type = 0
+	for review in to_check:
+		if word in review:
+			words_found += 1
+	for review in other_type:
+		if word in review:
+			word_in_other_type += 1
+	words_total = words_found + words_in_other_type
+	return words_found / words_total
+
+
+for reviews in pos_reviews/neg_reviews:
+	review.add_
+	popular_words = list((string,float)) # tuples
+	for word in reviews:
+		popular_words.append((word, get_information_value(word)))
+	popular_words = sorted(popular_words, key = itemgetter(1), reverse=True)
+	#1 in the getter ensures it sorts based on value
+	
+________________
+STEG 5:
+Pruning. Fjern ord som har mindre enn 5% tilstedeværelse (information-value).
+Her kan vi gå gjennom hver review-klasse (enkelt-review) og hente ut informasjons-tuppel-lista
+så kan vi fjerne ordene som ikke har mer enn 0.05 i value.
+
+
+________________
+STEG 6:
+Ettersom [boring, good, movie] kan ha tvetydige ratings, skal det implementeres "n-grams", med n = 2: bigrams.
+se på annenhvert ord og koble de sammen
+the_movie is_not good_and very_boring som eks.
+
+disse ordene skal legges til som egne ord i etter de originale ordene.
+
+Rekkefølge:
+
+1. Del opp ordene som før og fjern alt, sett til lowercase. Legg disse inn i en liste.
+2. Gå gjennom denne lista og lag bigrams av annenhvert ord. (bruk range med step 2 og legg til index i og i+1)
+3. Fjern så stopp-ord og duplikater
+4. Prune ord som ikke er i minst 5% av dataen
+
+
+________________
+STEG 7:
+
+Ferdig med testingen. Vi skal nå klassifisere en review, basert på ordene som har blitt filtrert.
+Regn ut et "godhetsmål"
+
+"def goodness(review):"
+
+og bruk denne til å gange sammen verdiene til alle ordene som ikke har blitt fjernet.
+Vi får da en gjennomsnittlig verdi for en tekst.
+
+score += math.log(pos_docs.popularity(word))
+
+
+Bruk dette til å scanne trenings-data. 
+Etter scan skal man ta inn et nytt dokument og så returnere om en review er positiv eller negativ.
+Skal ikke bruke n-grams og kun inkludere ord som er med i minst 2%.
+
+
+STRAFF:
+Gitt ordet "terrible" som har 90% pop i negativ, men 0 i positiv.
+Hvis vi overser ordet, vil det gi log(1.0) = 0. 
+Ved å straffe den relevante gruppen med log(E), E er en liten verdi, <0.02
+
+En slutt-evaluering gjøres ved:
+Antall test-doks i riktig gruppe / Antall test-doks totalt
+
+________________
+STEG 8:
+
+Les tekst fra fil
+Transformer tekst riktig
+Finn godhetsverdi for teksten og tildel gruppe
+Sjekk om systemet svarte rett
+
