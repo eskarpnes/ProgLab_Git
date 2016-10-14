@@ -3,16 +3,22 @@ import timeit
 import itertools
 import re
 import codecs
+import math
 # import sys
 from collections import defaultdict
-from cloud import Wordcloud
+#from cloud import Wordcloud
 from loadbar import LoadingBar
+
 
 _time = timeit.default_timer
 
 class ReadReviews:
 	def __init__(self, path, percent, ngrams=0):
 		data_folder = path + '\\data\\alle\\train\\'
+		self.test_folder = path + '\\data\\alle\\test\\'
+		self.pos_test = os.listdir(self.test_folder + 'pos\\')
+		self.neg_test = os.listdir(self.test_folder + 'neg\\')
+		print (data_folder)
 		self.PERCENT = percent
 		self.ngrams = ngrams
 		
@@ -27,7 +33,10 @@ class ReadReviews:
 		self.pos_info, self.neg_info = [], []	# information value
 		self.pos_pop, self.neg_pop = [], []		# popularity value
 		
-		self.learn()
+		self.pos_dict = defaultdict(float)
+		self.neg_dict = defaultdict(float)
+		self.pos_info_dict = defaultdict(float)
+		self.neg_info_dict = defaultdict(float)
 	
 	def update_stopwords(self, path):
 		with open(path, 'r') as stoplist:
@@ -39,33 +48,35 @@ class ReadReviews:
 		
 	def n_grams(self, data, n):
 		return ['_'.join(w for w in [data[i+j]
-				for j in range(n)])
+				for j in range(n)] if w != 'br')
 				for i in range(0,len(data)-n, n)]
 
+				
+	def get_data(self, r):
+		# data = [x for x in re.findall("\w+", r.read().lower().replace("'",''))]				
+		# ng = self.n_grams(data, self.ngrams)
+		# remove stopwords
+		# data = [x for x in data if x not in self.stop_words]
+		data = [x for x in re.findall("\w+", r.read().lower().replace("'",'')) if x not in self.stop_words]	
+		return set(data)
+		# return set(itertools.chain(data, ng))
 				
 	def get_words(self, folder):
 		t0 = _time()
 		words = set()
 		reviews = []  # cannot be a set, as it's a list of sets
 		path = os.listdir(folder)
-		print ('Size of reviews:',len(os.listdir(folder)))
+		print ('Size of reviews:',len(path))
 		
-		loading_bar = LoadingBar(len(path))
+		loading_bar = LoadingBar(len(path), folder)
 
 		for review in path:
 			with open(folder+"\\"+review,'r', encoding = 'utf-8') as r:
-				data = [x for x in
-				re.findall("\w+", r.read().lower().replace("'",''))
-				if x not in self.stop_words]
-				# n_gram_set = n_grams(data, self.ngrams)
-				# print(n_gram_set)
-				# data = set(itertools.chain(data, n_gram_set))
-				data = set(data)
+				data = self.get_data(r)
 				reviews.append(data)
 				words |= data
-				
-				# loading bar
 				loading_bar.update()
+				
 			r.close()
 		loading_bar.finished()
 		print ('\nGot words in',_time()-t0,'seconds')
@@ -114,9 +125,15 @@ class ReadReviews:
 			self.pos_info.append((k, round(v / (v+_neg[k]), 2)))
 			self.pos_pop.append((k, round(v/len(self.pos_list),2)))
 			
+			self.pos_dict[k] = round(v/len(self.pos_list),2)
+			self.pos_info_dict[k] = round(v / (v+_neg[k]),2)
+			
 		for k,v in _neg.items():
 			self.neg_info.append((k, round(v / (v+_pos[k]), 2)))
 			self.neg_pop.append((k, round(v/len(self.neg_list),2)))
+			
+			self.neg_dict[k] = round(v/len(self.neg_list),2)
+			self.neg_info_dict[k] = round(v / (v+_pos[k]), 2)
 		
 		self.pos_info = self.rev_sort(self.pos_info)
 		self.neg_info = self.rev_sort(self.neg_info)
@@ -134,8 +151,7 @@ class ReadReviews:
 				pos_text+=sc1[0]+' '
 				neg_text+=sc2[0]+' '
 			shown+=1
-		Wordcloud(pos_text, neg_text)
-		
+		#Wordcloud(pos_text, neg_text)
 		
 	def pop_val(self):
 		print ('\nPopularity values:')
@@ -147,6 +163,8 @@ class ReadReviews:
 		
 	
 	def learn(self):
+		t0 = _time()
+		
 		self.pos_words, self.pos_list = self.get_words(self.pos_reviews)
 		self.neg_words, self.neg_list = self.get_words(self.neg_reviews)
 		self.all_reviews = list(itertools.chain(self.pos_list, self.neg_list))
@@ -159,6 +177,49 @@ class ReadReviews:
 		self.pop_val()
 		self.info_val()
 		
-		print ('Creating a list of all known words and their information value...')
-		return list(itertools.chain(self.pos_info, self.neg_info))
+		print ('Learned some stuff in',_time()-t0,'seconds!')
+		return self.pos_pop, self.neg_pop
 		print ('...Done!')
+		
+	def analyze(self, data, review):
+		pos_score, neg_score = 0,0
+		for c in data:
+			if c in self.pos_info_dict:
+				if self.pos_info_dict[c] < 0.3:
+					pass
+			elif c in self.neg_info_dict:
+				if self.neg_info_dict[c] < 0.3:
+					pass
+			else:
+				pos_score += self.pos_dict[c]
+				neg_score += self.neg_dict[c]
+			
+			# neg_score += math.log(self.neg_dict[c])
+		# print ('Pos score:',pos_score,'\tNeg score:',neg_score)
+		
+		root = self.neg_test
+		if pos_score > neg_score:
+			root = self.pos_test
+		if review in root:
+			return True
+	
+		
+	def test(self):
+		t0 = _time()
+		words = set()
+		reviews = []
+		correct = 0
+		total = len(self.pos_test) + len(self.neg_test)
+		for folder in os.listdir(self.test_folder):
+			path = os.listdir(self.test_folder + '\\' + folder)
+			loading_bar = LoadingBar(len(path), self.test_folder)
+			for review in path:
+				with open(self.test_folder+'\\'+folder+'\\'+review, 'r', encoding = 'utf-8') as r:
+					data = self.get_data(r)
+					if self.analyze(data, review):
+						correct += 1
+					loading_bar.update()
+				r.close()
+			loading_bar.finished()
+			
+		print ('Guessed',correct,'right out of',total,'...',round(100*(correct/total), 2),'%')

@@ -140,3 +140,8 @@ def show_info_val(name, words, reviews, other_reviews):
 	print ()
 	return vals
 	
+	
+	
+				# data = [x for x in
+				# re.findall("\w+", r.read().lower().replace("'",''))
+				# if x not in self.stop_words]

@@ -9,6 +9,10 @@ sister
 daughter
 daughters
 go
+guy
+guys
+girl
+girls
 goes
 son
 sons
